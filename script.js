@@ -291,9 +291,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const requestedDepth = Number(depthRange.value);
         const depth = Math.min(requestedDepth, MAX_REALTIME_DEPTH);
         const startTime = performance.now();
+        // Ca hai ben deu dung cung thuat toan va cung do sau.
+        // X la nguoi minimize (tim score nho nhat vi evaluateBoard tinh theo goc O).
+        // O la nguoi maximize (tim score lon nhat).
         const move = currentPlayer === 'O'
             ? findAiMove(algorithmSelect.value, depth)
-            : findBestHumanMove();
+            : findAiMoveChoX(algorithmSelect.value, depth);
         const runtime = performance.now() - startTime;
 
         if (!move || !Number.isInteger(move.row) || !Number.isInteger(move.col)) {
@@ -892,6 +895,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function findBestHumanMove() {
         return getHumanHintCandidates()[0] || null;
+    }
+
+    // AI danh vao phe X trong che do AI vs AI.
+    // Dung Alpha-Beta nhung vai tro dao nguoc: X la minimize (tim score NHO nhat).
+    // evaluateBoard tra ve diem theo goc do O, nen X muon chon nuoc co score thap nhat.
+    function findAiMoveChoX(algorithm, depth) {
+        const nuocUngVien = getCandidateMoves(board, 1, 12);
+        let diemToiThieu = Infinity;
+        let nuocToiUu = null;
+
+        alphaBetaStatesSearched = 0;
+
+        for (const nuoc of nuocUngVien) {
+            const banCoTam = board.map((dong) => [...dong]);
+            makeMove(banCoTam, nuoc.row, nuoc.col, 'X');
+
+            if (checkWin(banCoTam, 'X')) {
+                return { row: nuoc.row, col: nuoc.col, score: -WIN_SCORE, states: alphaBetaStatesSearched };
+            }
+
+            let diem;
+            if (algorithm === 'minimax') {
+                minimaxStatesSearched = 0;
+                diem = minimax(banCoTam, depth - 1, true);
+            } else {
+                diem = alphaBeta(banCoTam, depth - 1, -Infinity, Infinity, true);
+            }
+
+            if (diem < diemToiThieu) {
+                diemToiThieu = diem;
+                nuocToiUu = { row: nuoc.row, col: nuoc.col };
+            }
+        }
+
+        const soTrangThai = algorithm === 'minimax' ? minimaxStatesSearched : alphaBetaStatesSearched;
+        return nuocToiUu ? { ...nuocToiUu, score: diemToiThieu, states: soTrangThai } : null;
     }
 
     function initializeDepthVisual() {
