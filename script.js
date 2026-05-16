@@ -903,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function findAiMoveChoX(algorithm, depth) {
         const nuocUngVien = getCandidateMoves(board, 1, 12);
         let diemToiThieu = Infinity;
-        let nuocToiUu = null;
+        let danhSachNuocTot = []; // Thu thap tat ca nuoc co diem bang nhau
 
         alphaBetaStatesSearched = 0;
 
@@ -925,12 +925,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (diem < diemToiThieu) {
                 diemToiThieu = diem;
-                nuocToiUu = { row: nuoc.row, col: nuoc.col };
+                danhSachNuocTot = [{ row: nuoc.row, col: nuoc.col }];
+            } else if (diem === diemToiThieu) {
+                danhSachNuocTot.push({ row: nuoc.row, col: nuoc.col });
             }
         }
 
+        // Chon ngau nhien trong cac nuoc co diem bang nhau de tao su da dang
+        const nuocChon = danhSachNuocTot[Math.floor(Math.random() * danhSachNuocTot.length)];
         const soTrangThai = algorithm === 'minimax' ? minimaxStatesSearched : alphaBetaStatesSearched;
-        return nuocToiUu ? { ...nuocToiUu, score: diemToiThieu, states: soTrangThai } : null;
+        return nuocChon ? { ...nuocChon, score: diemToiThieu, states: soTrangThai } : null;
     }
 
     function initializeDepthVisual() {

@@ -13,7 +13,7 @@ const AI_BRANCH_LIMIT = 12;
 function findBestMoveAlphaBeta(board, depth) {
     alphaBetaStatesSearched = 0;
     let bestScore = -Infinity;
-    let bestMove = null;
+    let danhSachNuocTot = []; // Thu thap tat ca nuoc co diem bang nhau
     let alpha = -Infinity;
     let beta = Infinity;
 
@@ -25,12 +25,16 @@ function findBestMoveAlphaBeta(board, depth) {
         const score = alphaBeta(newBoard, depth - 1, alpha, beta, false);
         if (score > bestScore) {
             bestScore = score;
-            bestMove = { row: move.row, col: move.col };
+            danhSachNuocTot = [{ row: move.row, col: move.col }];
+        } else if (score === bestScore) {
+            danhSachNuocTot.push({ row: move.row, col: move.col });
         }
         alpha = Math.max(alpha, score);
     }
 
-    return { ...bestMove, score: bestScore, states: alphaBetaStatesSearched };
+    // Chon ngau nhien trong cac nuoc co diem bang nhau de tao su da dang
+    const nuocChon = danhSachNuocTot[Math.floor(Math.random() * danhSachNuocTot.length)];
+    return { ...nuocChon, score: bestScore, states: alphaBetaStatesSearched };
 }
 
 /**

@@ -4,6 +4,7 @@
 let minimaxStatesSearched = 0;
 const MINIMAX_BRANCH_LIMIT = 12;
 
+
 /**
  * Tìm nước đi tốt nhất cho AI bằng Minimax.
  * @param {Array<Array<string|null>>} board - Bàn cờ hiện tại.
@@ -13,7 +14,7 @@ const MINIMAX_BRANCH_LIMIT = 12;
 function findBestMoveMinimax(board, depth) {
     minimaxStatesSearched = 0;
     let bestScore = -Infinity;
-    let bestMove = null;
+    let danhSachNuocTot = []; // Thu thap tat ca nuoc co diem bang nhau
 
     const validMoves = getCandidateMoves(board, 1, MINIMAX_BRANCH_LIMIT);
 
@@ -23,12 +24,17 @@ function findBestMoveMinimax(board, depth) {
         const score = minimax(newBoard, depth - 1, false);
         if (score > bestScore) {
             bestScore = score;
-            bestMove = { row: move.row, col: move.col };
+            danhSachNuocTot = [{ row: move.row, col: move.col }];
+        } else if (score === bestScore) {
+            danhSachNuocTot.push({ row: move.row, col: move.col });
         }
     }
 
-    return { ...bestMove, score: bestScore, states: minimaxStatesSearched };
+    // Chon ngau nhien trong cac nuoc co diem bang nhau de tao su da dang
+    const nuocChon = danhSachNuocTot[Math.floor(Math.random() * danhSachNuocTot.length)];
+    return { ...nuocChon, score: bestScore, states: minimaxStatesSearched };
 }
+
 
 /**
  * Hàm đệ quy Minimax.
