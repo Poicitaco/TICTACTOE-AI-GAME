@@ -1,6 +1,6 @@
 // Cac test case bat buoc cho phan thuc nghiem.
 // Tat ca deu dung 10x10 de giong ban co trong giao dien.
-// Win condition: WIN_LENGTH = 5 quan lien tiep.
+// Win condition: WIN_LENGTH = 4 quan lien tiep (theo yeu cau de bai).
 
 const testCases = [
     {
@@ -26,10 +26,9 @@ const testCases = [
     },
     {
         name: 'AI Immediate Win',
-        description: 'AI sap thang: O da co 4 quan lien tiep, can dat quan thu 5.',
+        description: 'AI sap thang: O da co 3 quan lien tiep, can dat quan thu 4.',
         board: (() => {
             const board = createBoard(10);
-            board[4][2] = 'O';
             board[4][3] = 'O';
             board[4][4] = 'O';
             board[4][5] = 'O';
@@ -37,14 +36,13 @@ const testCases = [
             board[5][4] = 'X';
             return board;
         })(),
-        expectedMoves: [{ row: 4, col: 1 }, { row: 4, col: 6 }],
+        expectedMoves: [{ row: 4, col: 2 }, { row: 4, col: 6 }],
     },
     {
         name: 'Player Threat Defense',
-        description: 'Nguoi sap thang: X da co 4 quan lien tiep, AI can chan ngay.',
+        description: 'Nguoi sap thang: X da co 3 quan lien tiep, AI can chan ngay.',
         board: (() => {
             const board = createBoard(10);
-            board[4][2] = 'X';
             board[4][3] = 'X';
             board[4][4] = 'X';
             board[4][5] = 'X';
@@ -52,7 +50,7 @@ const testCases = [
             board[5][4] = 'O';
             return board;
         })(),
-        expectedMoves: [{ row: 4, col: 1 }, { row: 4, col: 6 }],
+        expectedMoves: [{ row: 4, col: 2 }, { row: 4, col: 6 }],
     },
     {
         name: 'Both Sides Attack',
