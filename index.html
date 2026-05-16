@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caro AI 10x10</title>
+    <link rel="stylesheet" href="battle-arena.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="brand">CARO AI</div>
+        <nav class="header-nav" aria-label="Điều hướng chính">
+            <button class="header-tab is-active" type="button" data-view="game">
+                <span class="material-symbols-outlined">videogame_asset</span>
+                Chơi
+            </button>
+            <button class="header-tab" id="dashboard-tab-button" type="button" data-view="dashboard">
+                <span class="material-symbols-outlined">query_stats</span>
+                Dashboard
+            </button>
+            <button class="header-tab" id="tests-tab-button" type="button" data-view="tests">
+                <span class="material-symbols-outlined">science</span>
+                Test Cases
+            </button>
+            <button class="header-tab" id="history-tab-button" type="button" data-view="history">
+                <span class="material-symbols-outlined">history</span>
+                Lịch sử
+            </button>
+            <button class="header-tab" id="report-tab-button" type="button" data-view="report">
+                <span class="material-symbols-outlined">school</span>
+                Báo cáo
+            </button>
+        </nav>
+        <div class="header-actions">
+            <button id="history-button" class="icon-button" type="button" title="Lịch sử đấu" aria-label="Lịch sử đấu">
+                <span class="material-symbols-outlined">history</span>
+            </button>
+            <button id="settings-button" class="icon-button" type="button" title="Cài đặt" aria-label="Cài đặt">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </div>
+    </header>
+
+    <main id="game-view" class="game-layout app-view is-active">
+        <aside class="side-panel left-panel">
+            <section class="glass-panel">
+                <h2><span class="material-symbols-outlined">psychology</span>CÀI ĐẶT AI</h2>
+                <label class="field">
+                    <span>Thuật toán</span>
+                    <select id="algorithm-select">
+                        <option value="alphabeta" selected>Alpha-Beta Pruning</option>
+                        <option value="minimax">Minimax</option>
+                        <option value="iterative">Iterative Deepening</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Độ sâu tìm kiếm</span>
+                    <div class="range-row">
+                        <input id="depth-range" type="range" min="1" max="5" value="3">
+                        <strong id="depth-range-value">3</strong>
+                    </div>
+                </label>
+                <label class="field">
+                    <span>Độ khó</span>
+                    <select id="difficulty-select">
+                        <option value="1">Dễ</option>
+                        <option value="3" selected>Trung bình</option>
+                        <option value="4">Khó</option>
+                    </select>
+                </label>
+                <div class="action-grid">
+                    <button id="hint-button" class="ghost-action" type="button">
+                        <span class="material-symbols-outlined">lightbulb</span>
+                        Gợi ý
+                    </button>
+                    <button id="undo-button" class="ghost-action" type="button">
+                        <span class="material-symbols-outlined">undo</span>
+                        Hoàn tác
+                    </button>
+                    <button id="ai-vs-ai-button" class="ghost-action" type="button">
+                        <span class="material-symbols-outlined">smart_toy</span>
+                        AI đấu AI
+                    </button>
+                    <button id="stop-ai-vs-ai-button" class="ghost-action" type="button">
+                        <span class="material-symbols-outlined">pause</span>
+                        Dừng
+                    </button>
+                </div>
+            </section>
+
+            <section class="glass-panel">
+                <h2 class="secondary-heading"><span class="material-symbols-outlined">analytics</span>PHÂN TÍCH AI</h2>
+                <dl class="stats-list">
+                    <div><dt>Nước AI chọn</dt><dd id="move-display">-</dd></div>
+                    <div><dt>Điểm đánh giá</dt><dd id="score-display" class="accent-good">-</dd></div>
+                    <div><dt>Độ sâu đạt được</dt><dd><span id="depth-display">3</span>/<span id="depth-requested-display">3</span></dd></div>
+                    <div><dt>Số trạng thái xét</dt><dd id="states-display">-</dd></div>
+                    <div><dt>Thời gian chạy</dt><dd id="runtime-display" class="accent-primary">-</dd></div>
+                </dl>
+            </section>
+
+            <section class="glass-panel match-log-panel">
+                <h2 class="tertiary-heading">NHẬT KÝ VÁN ĐẤU</h2>
+                <div id="battle-log" class="match-log">
+                    <div class="log-line"><time>--:--:--</time><strong>SYS</strong><span>Sẵn sàng bắt đầu ván mới</span></div>
+                </div>
+            </section>
+            <button id="rules-button" class="help-action" type="button">
+                <span class="material-symbols-outlined">info</span>
+                Luật chơi Caro
+            </button>
+        </aside>
+
+        <section class="board-stage" aria-label="Bàn cờ Caro 10x10">
+            <div id="turn-pill" class="turn-pill">
+                <span class="material-symbols-outlined">person</span>
+                <strong id="turn-display">Lượt của bạn</strong>
+            </div>
+
+            <div class="scoreboard">
+                <div id="human-score-chip" class="score-chip is-active player-x">
+                    <div>
+                        <span>BẠN (X)</span>
+                        <strong id="human-score">0</strong>
+                    </div>
+                    <span class="material-symbols-outlined filled">account_circle</span>
+                </div>
+                <div id="ai-score-chip" class="score-chip player-o">
+                    <div>
+                        <span>MÁY (O)</span>
+                        <strong id="ai-score">0</strong>
+                    </div>
+                    <span class="material-symbols-outlined filled">smart_toy</span>
+                </div>
+            </div>
+
+            <div class="board-wrap">
+                <div id="board" aria-label="Bàn cờ Caro tương tác"></div>
+                <div id="winning-line" aria-hidden="true"></div>
+            </div>
+
+            <div class="below-board">
+                <button id="reset-button" class="primary-action" type="button">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Ván mới
+                </button>
+                <p>Điều kiện thắng: 4 quân liên tiếp theo ngang, dọc hoặc chéo</p>
+            </div>
+        </section>
+
+        <aside class="side-panel right-panel">
+            <section class="glass-panel thinking-panel" id="ai-thinking-panel">
+                <div class="thinking-title">
+                    <h2><span class="material-symbols-outlined">memory</span>AI THINKING</h2>
+                    <span id="ai-thinking-status">Đang chờ lượt</span>
+                </div>
+                <div class="thinking-loader" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="thinking-progress">
+                    <i id="ai-progress-bar"></i>
+                </div>
+                <div class="depth-visual" id="ai-depth-track"></div>
+                <dl class="stats-list compact-stats">
+                    <div><dt>Heuristic hiện tại</dt><dd id="current-heuristic-display">-</dd></div>
+                    <div><dt>Trạng thái</dt><dd id="thinking-phase-display">Sẵn sàng</dd></div>
+                </dl>
+            </section>
+
+            <section class="glass-panel hint-panel">
+                <h2><span class="material-symbols-outlined">lightbulb</span>GỢI Ý CHIẾN THUẬT</h2>
+                <div id="hint-candidates" class="hint-candidates">
+                    <p>Bấm Gợi ý để AI phân tích các nước tốt cho X.</p>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <section id="dashboard-view" class="dashboard-section benchmark-engine app-view" aria-label="Dashboard benchmark AI">
+        <div class="engine-header">
+            <div class="engine-copy">
+                <h1>AI Benchmark Engine</h1>
+                <p>So sánh kiến trúc tìm kiếm đệ quy giữa Minimax và Alpha-Beta Pruning trên cùng test case, cùng độ sâu.</p>
+            </div>
+            <div class="engine-controls glass-panel">
+                <label>
+                    <span>ĐỘ SÂU TÌM KIẾM</span>
+                    <div class="engine-depth">
+                        <strong>1</strong>
+                        <input id="dashboard-depth-mirror" type="range" min="1" max="5" value="3" aria-label="Search depth mirror">
+                        <strong>5</strong>
+                    </div>
+                </label>
+                <button id="run-benchmark-button" class="engine-button" type="button">Chạy toàn bộ</button>
+                <button id="export-csv-button" class="engine-button primary-engine-button" type="button">Xuất CSV</button>
+            </div>
+        </div>
+
+        <div class="engine-layout">
+            <div class="engine-main">
+                <div class="engine-metrics">
+                    <article class="engine-card glass-panel">
+                        <div class="engine-icon"><span class="material-symbols-outlined">speed</span></div>
+                        <span>HIỆU QUẢ ALPHA-BETA</span>
+                        <strong id="node-reduction">-</strong>
+                        <p>Node reduction so với Minimax sau khi chạy benchmark.</p>
+                    </article>
+                    <article class="engine-card glass-panel">
+                        <div class="engine-icon teal"><span class="material-symbols-outlined">timer</span></div>
+                        <span>TỐC ĐỘ TỐT NHẤT</span>
+                        <strong id="fastest-algorithm">-</strong>
+                        <p>Thuật toán có runtime tốt nhất trong lần đo hiện tại.</p>
+                    </article>
+                    <article class="engine-card glass-panel">
+                        <div class="engine-icon coral"><span class="material-symbols-outlined">verified</span></div>
+                        <span>ĐỘ ỔN ĐỊNH NƯỚC ĐI</span>
+                        <strong id="case-count">-</strong>
+                        <p>Test cases: opening, mid-game, winning, defensive, complex.</p>
+                    </article>
+                </div>
+
+                <section class="benchmark-table-shell glass-panel">
+                    <div class="engine-table-head">
+                        <div>
+                            <p class="section-kicker">MA TRẬN TRẠNG THÁI</p>
+                            <h2>Minimax vs Alpha-Beta</h2>
+                        </div>
+                        <span id="benchmark-status">Chưa chạy</span>
+                    </div>
+                    <div class="table-wrap engine-table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Trạng thái</th>
+                                    <th>Thuật toán</th>
+                                    <th>Nước chọn</th>
+                                    <th>Điểm</th>
+                                    <th>States</th>
+                                    <th>Time</th>
+                                    <th>Match</th>
+                                </tr>
+                            </thead>
+                            <tbody id="benchmark-table">
+                                <tr><td colspan="7">Bấm Run All Tests để chạy benchmark.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <button id="load-more-test-button" class="load-more-tests" type="button">
+                    <span class="material-symbols-outlined">keyboard_arrow_down</span>
+                    Xem test case
+                </button>
+
+                <div class="chart-grid engine-chart-grid">
+                    <section class="glass-panel chart-panel">
+                        <h2>Biểu đồ thời gian</h2>
+                        <div id="runtime-chart" class="bar-chart">
+                            <p>Bấm Run All Tests để tạo biểu đồ.</p>
+                        </div>
+                    </section>
+                    <section class="glass-panel chart-panel">
+                        <h2>Biểu đồ số node</h2>
+                        <div id="node-chart" class="bar-chart">
+                            <p>Bấm Run All Tests để tạo biểu đồ.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <aside class="engine-side">
+                <section class="vector-panel glass-panel">
+                    <div class="panel-title-row">
+                        <div>
+                            <h2>Vector Preview</h2>
+                            <span class="live-chip">LIVE</span>
+                        </div>
+                    </div>
+                    <p id="vector-scenario">Current scenario: chọn test case để xem mô phỏng.</p>
+                    <div id="vector-preview-board" class="vector-board" aria-label="Vector preview board"></div>
+                    <div class="vector-meta">
+                        <div>
+                            <span>Độ khó ước tính</span>
+                            <strong id="vector-difficulty">-</strong>
+                        </div>
+                        <div>
+                            <span>Thiên hướng heuristic</span>
+                            <strong id="vector-bias">-</strong>
+                        </div>
+                    </div>
+                    <div class="heat-strip"><i></i></div>
+                </section>
+            </aside>
+        </div>
+    </section>
+
+    <section id="tests-view" class="tests-section app-view" aria-label="Test case selector">
+        <div class="tests-page-grid">
+            <aside class="tests-list-column">
+                <div class="tests-title">
+                    <h1>Test Scenarios</h1>
+                    <p>Chọn trạng thái bàn cờ có sẵn để demo với giảng viên và đánh giá nước đi của AI.</p>
+                </div>
+                <div id="test-case-list" class="scenario-list"></div>
+            </aside>
+
+            <main class="tests-preview-column">
+                <section class="glass-panel scenario-board-panel">
+                    <div class="scenario-toolbar">
+                        <div>
+                            <span class="live-chip">CURRENT: AI TURN</span>
+                            <strong id="scenario-title">Opening State</strong>
+                        </div>
+                        <div class="scenario-icons">
+                            <span class="material-symbols-outlined">zoom_in</span>
+                            <span class="material-symbols-outlined">refresh</span>
+                        </div>
+                    </div>
+                    <div class="scenario-board-shell">
+                        <div id="test-preview-board" class="scenario-preview-board" aria-label="Test case preview board"></div>
+                    </div>
+                </section>
+
+                <section class="glass-panel scenario-control-bar">
+                    <div class="test-actions">
+                        <label class="field inline-field">
+                            <span>Test case</span>
+                            <select id="test-case-select"></select>
+                        </label>
+                        <button id="run-selected-test-button" class="primary-action" type="button">
+                            <span class="material-symbols-outlined">play_arrow</span>
+                            Run AI Test
+                        </button>
+                        <button id="load-test-case-button" class="ghost-action" type="button">
+                            <span class="material-symbols-outlined">input</span>
+                            Nạp vào bàn chơi
+                        </button>
+                    </div>
+                    <div id="selected-test-output" class="selected-test-output">
+                        <p>Chọn test case để xem preview và chạy thử Minimax / Alpha-Beta.</p>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </section>
+
+    <section id="report-view" class="dashboard-section app-view" aria-label="Trang báo cáo phân tích">
+        <div class="dashboard-header">
+            <div>
+                <p class="section-kicker">REPORT / ANALYTICS</p>
+                <h1>Báo cáo học thuật</h1>
+            </div>
+            <button id="export-pdf-button" class="primary-action secondary-export" type="button">
+                <span class="material-symbols-outlined">picture_as_pdf</span>
+                Xuất PDF
+            </button>
+        </div>
+
+        <div class="dashboard-grid">
+            <article class="glass-panel metric-card">
+                <span>Tổng kết</span>
+                <strong id="report-total-cases">-</strong>
+                <p>Số dòng benchmark đã chạy trong phiên hiện tại.</p>
+            </article>
+            <article class="glass-panel metric-card">
+                <span>Hiệu năng</span>
+                <strong id="report-node-reduction">-</strong>
+                <p>Tỉ lệ giảm node của Alpha-Beta so với Minimax.</p>
+            </article>
+            <article class="glass-panel metric-card">
+                <span>Trình bày</span>
+                <strong>CSV / PDF</strong>
+                <p>Có thể xuất CSV ở Dashboard và in/xuất PDF tại trang này.</p>
+            </article>
+        </div>
+
+        <section class="glass-panel report-panel academic-report">
+            <h2>Phân tích thuật toán</h2>
+            <div class="report-grid">
+                <article>
+                    <h3>Ưu điểm</h3>
+                    <p>Minimax dễ cài đặt và dễ giải thích. Alpha-Beta giữ cùng ý tưởng nhưng cắt bỏ các nhánh không cần xét, nhờ đó giảm số node và thời gian chạy.</p>
+                </article>
+                <article>
+                    <h3>Nhược điểm</h3>
+                    <p>Độ sâu cao làm số trạng thái tăng nhanh. Hàm đánh giá hiện chỉ dựa trên cửa sổ 4 ô nên chưa nhận diện đầy đủ thế mở hai đầu hoặc bẫy nhiều hướng.</p>
+                </article>
+                <article>
+                    <h3>Hướng cải tiến</h3>
+                    <p>Cải thiện difficulty, thêm AI vs AI nâng cao, transposition table, iterative deepening có giới hạn thời gian và heuristic nhận diện pattern phức tạp.</p>
+                </article>
+            </div>
+        </section>
+    </section>
+
+    <section id="history-view" class="history-section app-view" aria-label="Lịch sử đấu">
+        <div class="dashboard-header">
+            <div>
+                <p class="section-kicker">LỊCH SỬ ĐẤU</p>
+                <h1>Xem lại lịch sử đấu</h1>
+            </div>
+            <button id="clear-history-button" class="primary-action secondary-export" type="button">
+                <span class="material-symbols-outlined">delete</span>
+                Xóa lịch sử
+            </button>
+        </div>
+
+        <div class="history-layout">
+            <section class="glass-panel history-list-panel">
+                <h2>Danh sách ván đấu</h2>
+                <div id="match-history-list" class="history-list">
+                    <p>Chưa có ván đấu nào được lưu.</p>
+                </div>
+            </section>
+
+            <section class="glass-panel replay-panel">
+                <div class="panel-title-row">
+                    <div>
+                        <p class="section-kicker">REPLAY</p>
+                        <h2 id="replay-title">Chọn một ván để xem lại</h2>
+                    </div>
+                    <span id="replay-meta">-</span>
+                </div>
+                <div class="replay-board-wrap">
+                    <div id="replay-board" class="replay-board" aria-label="Bàn cờ replay"></div>
+                    <div id="replay-winning-line" aria-hidden="true"></div>
+                </div>
+                <div id="replay-moves" class="replay-moves"></div>
+            </section>
+        </div>
+    </section>
+
+    <nav class="mobile-nav" aria-label="Điều hướng mobile">
+        <button class="mobile-nav-item is-active" type="button" data-panel="play">
+            <span class="material-symbols-outlined">videogame_asset</span>
+            <span>Chơi</span>
+        </button>
+        <button class="mobile-nav-item" type="button" data-panel="ai">
+            <span class="material-symbols-outlined">psychology</span>
+            <span>AI</span>
+        </button>
+        <button class="mobile-nav-item" type="button" data-panel="stats">
+            <span class="material-symbols-outlined">analytics</span>
+            <span>Thống kê</span>
+        </button>
+    </nav>
+
+    <dialog id="info-dialog" class="modal">
+        <div class="modal-card glass-panel">
+            <button class="icon-button modal-close" type="button" data-close-dialog aria-label="Đóng">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h2 id="dialog-title">Luật chơi Caro</h2>
+            <p id="dialog-body">Người chơi đặt X trên bàn 10x10. Máy đặt O. Bên đầu tiên nối được 4 quân liên tiếp theo ngang, dọc hoặc chéo sẽ thắng.</p>
+        </div>
+    </dialog>
+
+    <dialog id="game-over-dialog" class="modal">
+        <div class="modal-card glass-panel result-card">
+            <h2 id="result-title">Ván đấu kết thúc</h2>
+            <p id="result-body">Bắt đầu ván mới để chơi tiếp.</p>
+            <button id="play-again-button" class="primary-action" type="button">
+                <span class="material-symbols-outlined">refresh</span>
+                Chơi lại
+            </button>
+        </div>
+    </dialog>
+
+    <script src="board.js"></script>
+    <script src="gameRules.js"></script>
+    <script src="ai/evaluation.js"></script>
+    <script src="ai/minimax.js"></script>
+    <script src="ai/alphabeta.js"></script>
+    <script src="benchmark.js"></script>
+    <script src="testCases.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

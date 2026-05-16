@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Stitch / AI tool exports
+stitch-export/
+export-stitch.mjs
+package/
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
