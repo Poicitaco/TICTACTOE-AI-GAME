@@ -560,7 +560,7 @@ input[type="range"] {
 
 .board-wrap {
     position: relative;
-    width: min(100%, 500px);
+    width: min(100%, clamp(380px, calc(100vh - 310px), 500px));
     aspect-ratio: 1;
     padding: 4px;
     border: 1px solid var(--outline);

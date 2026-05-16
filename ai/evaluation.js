@@ -1,101 +1,108 @@
-// Hàm đánh giá trạng thái cho AI.
-// Điểm dương: tốt cho AI O. Điểm âm: tốt cho người X.
+// Ham danh gia trang thai cho AI.
+// Diem duong: tot cho AI O. Diem am: tot cho nguoi X.
+// Su dung WIN_LENGTH tu gameRules.js de tu dong thich nghi.
 
 const WIN_SCORE = 100000;
 
 /**
- * Evaluates the board state from the AI's perspective.
- * A higher score is better for the AI ('O'), a lower score is better for the Human ('X').
- * @param {Array<Array<string|null>>} board - The game board.
- * @returns {number} The heuristic score.
+ * Danh gia toan bo ban co theo goc do AI (O).
+ * Diem cang cao cang tot cho O, diem cang thap cang tot cho X.
+ * @param {Array<Array<string|null>>} banCo - Ban co hien tai.
+ * @returns {number} Diem heuristic.
  */
-function evaluateBoard(board) {
-    let score = 0;
-    const size = board.length;
+function evaluateBoard(banCo) {
+    let tongDiem = 0;
+    const kichThuoc = banCo.length;
 
-    // Evaluate all possible lines of WIN_LENGTH
-    // Horizontal
-    for (let r = 0; r < size; r++) {
-        for (let c = 0; c <= size - WIN_LENGTH; c++) {
-            const window = [];
+    // Quet ngang
+    for (let r = 0; r < kichThuoc; r++) {
+        for (let c = 0; c <= kichThuoc - WIN_LENGTH; c++) {
+            const cuaSo = [];
             for (let i = 0; i < WIN_LENGTH; i++) {
-                window.push(board[r][c + i]);
+                cuaSo.push(banCo[r][c + i]);
             }
-            score += evaluateWindow(window);
+            tongDiem += evaluateWindow(cuaSo);
         }
     }
 
-    // Vertical
-    for (let r = 0; r <= size - WIN_LENGTH; r++) {
-        for (let c = 0; c < size; c++) {
-            const window = [];
+    // Quet doc
+    for (let r = 0; r <= kichThuoc - WIN_LENGTH; r++) {
+        for (let c = 0; c < kichThuoc; c++) {
+            const cuaSo = [];
             for (let i = 0; i < WIN_LENGTH; i++) {
-                window.push(board[r + i][c]);
+                cuaSo.push(banCo[r + i][c]);
             }
-            score += evaluateWindow(window);
+            tongDiem += evaluateWindow(cuaSo);
         }
     }
 
-    // Diagonal (down-right)
-    for (let r = 0; r <= size - WIN_LENGTH; r++) {
-        for (let c = 0; c <= size - WIN_LENGTH; c++) {
-            const window = [];
+    // Quet cheo xuong phai
+    for (let r = 0; r <= kichThuoc - WIN_LENGTH; r++) {
+        for (let c = 0; c <= kichThuoc - WIN_LENGTH; c++) {
+            const cuaSo = [];
             for (let i = 0; i < WIN_LENGTH; i++) {
-                window.push(board[r + i][c + i]);
+                cuaSo.push(banCo[r + i][c + i]);
             }
-            score += evaluateWindow(window);
+            tongDiem += evaluateWindow(cuaSo);
         }
     }
 
-    // Diagonal (down-left)
-    for (let r = 0; r <= size - WIN_LENGTH; r++) {
-        for (let c = WIN_LENGTH - 1; c < size; c++) {
-            const window = [];
+    // Quet cheo xuong trai
+    for (let r = 0; r <= kichThuoc - WIN_LENGTH; r++) {
+        for (let c = WIN_LENGTH - 1; c < kichThuoc; c++) {
+            const cuaSo = [];
             for (let i = 0; i < WIN_LENGTH; i++) {
-                window.push(board[r + i][c - i]);
+                cuaSo.push(banCo[r + i][c - i]);
             }
-            score += evaluateWindow(window);
+            tongDiem += evaluateWindow(cuaSo);
         }
     }
 
-    return score;
+    return tongDiem;
 }
 
 /**
- * Evaluates a single window of 4 cells.
- * @param {Array<string|null>} window - An array of 4 cells.
- * @returns {number} The score for this window.
+ * Danh gia mot cua so WIN_LENGTH o.
+ * Su dung WIN_LENGTH de tu dong thich nghi khi thay doi luat thang.
+ * Diem duong: tot cho AI (O). Diem am: tot cho nguoi (X).
+ * @param {Array<string|null>} cuaSo - Mang WIN_LENGTH phan tu.
+ * @returns {number} Diem danh gia cua cua so nay.
  */
-function evaluateWindow(window) {
-    let score = 0;
-    const aiPieces = window.filter(p => p === 'O').length;
-    const humanPieces = window.filter(p => p === 'X').length;
-    const emptyCells = window.filter(p => p === null).length;
+function evaluateWindow(cuaSo) {
+    let diem = 0;
+    const quanAI = cuaSo.filter(p => p === 'O').length;
+    const quanNguoi = cuaSo.filter(p => p === 'X').length;
+    const oTrong = cuaSo.filter(p => p === null).length;
 
-    if (aiPieces > 0 && humanPieces > 0) {
-        return 0; // Mixed window is not a threat
+    if (quanAI > 0 && quanNguoi > 0) {
+        return 0; // Cua so co ca hai ben: khong phai moi de doa
     }
 
-    if (aiPieces === 4) {
-        score += WIN_SCORE;
-    } else if (aiPieces === 3 && emptyCells === 1) {
-        score += 1000;
-    } else if (aiPieces === 2 && emptyCells === 2) {
-        score += 100;
-    } else if (aiPieces === 1 && emptyCells === 3) {
-        score += 10;
+    // Danh gia phe AI (O)
+    if (quanAI === WIN_LENGTH) {
+        diem += WIN_SCORE;
+    } else if (quanAI === WIN_LENGTH - 1 && oTrong >= 1) {
+        diem += 10000; // Sap thang: can 1 nuoc nua
+    } else if (quanAI === WIN_LENGTH - 2 && oTrong >= 2) {
+        diem += 500;   // De doa trung binh
+    } else if (quanAI === WIN_LENGTH - 3 && oTrong >= 3) {
+        diem += 50;    // De doa yeu
+    } else if (quanAI === 1 && oTrong >= WIN_LENGTH - 1) {
+        diem += 5;     // Moi dat quan
     }
 
-    if (humanPieces === 4) {
-        score -= WIN_SCORE;
-    } else if (humanPieces === 3 && emptyCells === 1) {
-        score -= 5000; // Prioritize blocking opponent's win
-    } else if (humanPieces === 2 && emptyCells === 2) {
-        score -= 50;
-    } else if (humanPieces === 1 && emptyCells === 3) {
-        score -= 5;
+    // Danh gia phe nguoi (X): uu tien chan nguoi thang
+    if (quanNguoi === WIN_LENGTH) {
+        diem -= WIN_SCORE;
+    } else if (quanNguoi === WIN_LENGTH - 1 && oTrong >= 1) {
+        diem -= 8000;  // Nguoi sap thang: phai chan ngay
+    } else if (quanNguoi === WIN_LENGTH - 2 && oTrong >= 2) {
+        diem -= 500;
+    } else if (quanNguoi === WIN_LENGTH - 3 && oTrong >= 3) {
+        diem -= 50;
+    } else if (quanNguoi === 1 && oTrong >= WIN_LENGTH - 1) {
+        diem -= 5;
     }
 
-    return score;
+    return diem;
 }
-

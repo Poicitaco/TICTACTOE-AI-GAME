@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ));
         rulesButton.addEventListener('click', () => showInfo(
             'Luật chơi Caro',
-            'Người chơi đặt X trên bàn 10x10. Máy đặt O. Bên đầu tiên nối được 4 quân liên tiếp theo ngang, dọc hoặc chéo sẽ thắng. Dùng Gợi ý để xem nước đi tốt cho người chơi và Hoàn tác để lùi lại cặp nước gần nhất.'
+            `Người chơi đặt X trên bàn 10x10. Máy đặt O. Bên đầu tiên nối được ${WIN_LENGTH} quân liên tiếp theo ngang, dọc hoặc chéo sẽ thắng. Dùng Gợi ý để xem nước đi tốt cho người chơi và Hoàn tác để lùi lại cặp nước gần nhất.`
         ));
         runBenchmarkButton.addEventListener('click', renderBenchmarkDashboard);
         exportCsvButton.addEventListener('click', exportBenchmarkCsv);
@@ -644,14 +644,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBenchmarkMetrics(rows) {
-        const totalMinimaxNodes = rows.reduce((sum, row) => sum + row.minimax.result.states, 0);
-        const totalAlphaNodes = rows.reduce((sum, row) => sum + row.alphabeta.result.states, 0);
-        const totalMinimaxTime = rows.reduce((sum, row) => sum + row.minimax.time, 0);
-        const totalAlphaTime = rows.reduce((sum, row) => sum + row.alphabeta.time, 0);
-        const reduction = getReductionPercent(totalMinimaxNodes, totalAlphaNodes);
+        const tongNutMinimax = rows.reduce((sum, row) => sum + row.minimax.result.states, 0);
+        const tongNutAlpha = rows.reduce((sum, row) => sum + row.alphabeta.result.states, 0);
+        const tongThoiMinimax = rows.reduce((sum, row) => sum + row.minimax.time, 0);
+        const tongThoiAlpha = rows.reduce((sum, row) => sum + row.alphabeta.time, 0);
+        const tyLeGiam = getReductionPercent(tongNutMinimax, tongNutAlpha);
+        const soCungNuoc = rows.filter(row => row.sameMove).length;
 
-        nodeReduction.textContent = `${reduction.toFixed(1)}%`;
-        fastestAlgorithm.textContent = totalAlphaTime <= totalMinimaxTime ? 'Alpha-Beta' : 'Minimax';
+        nodeReduction.textContent = `${tyLeGiam.toFixed(1)}%`;
+        fastestAlgorithm.textContent = tongThoiAlpha <= tongThoiMinimax ? 'Alpha-Beta' : 'Minimax';
+        caseCount.textContent = `${soCungNuoc}/${rows.length}`;
     }
 
     function updateReportMetrics(rows) {

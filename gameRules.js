@@ -1,6 +1,6 @@
 // Chứa luật chơi Caro.
 
-const WIN_LENGTH = 4;
+const WIN_LENGTH = 5;
 
 /**
  * Kiểm tra một nước đi có hợp lệ không.
